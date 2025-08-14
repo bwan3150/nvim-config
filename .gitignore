@@ -1,0 +1,16 @@
+# Neovim 临时文件
+*.swp
+*.swo
+*~
+.netrwhist
+
+# 插件管理器相关
+plugin/
+spell/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# 本地配置（如果有的话）
+local.lua
