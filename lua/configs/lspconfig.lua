@@ -1,17 +1,15 @@
-require("nvchad.configs.lspconfig").defaults()
-
 -- 添加更多服务器
 local servers = { 
   "html", 
-  "cssls", 
-  "ts_ls",        -- TypeScript/JavaScript
-  "pyright"       -- Python
+  "cssls"
 }
 
-vim.lsp.enable(servers)
-
--- 如果需要特殊配置，可以这样：
 local lspconfig = require "lspconfig"
+
+-- 为基本服务器设置配置
+for _, lsp in ipairs(servers) do
+  lspconfig[lsp].setup {}
+end
 
 -- Python 特殊配置
 lspconfig.pyright.setup {
@@ -26,7 +24,7 @@ lspconfig.pyright.setup {
   },
 }
 
--- JavaScript/TypeScript 特殊配置（可选）
+-- JavaScript/TypeScript 特殊配置
 lspconfig.ts_ls.setup {
   -- 可以添加特殊设置
 }
