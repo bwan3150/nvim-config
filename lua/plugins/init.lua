@@ -9,7 +9,25 @@ return {
   {
     "NvChad/ui",
     config = function()
+      -- 延迟加载并修复 colorify  -- 修复 NvChad colorify 的 LSP 错误
+  {
+    "NvChad/ui",
+    config = function()
       -- 延迟加载并修复 colorify
+      vim.defer_fn(function()
+        local ok, colorify = pcall(require, "nvchad.colorify")
+        if ok then
+          -- 重写有问题的函数
+          local original_lsp_var = colorify.lsp_var
+          colorify.lsp_var = function(bufnr, ...)
+            -- 确保 bufnr 是数字
+            local buf = type(bufnr) == "number" and bufnr or vim.api.nvim_get_current_buf()
+            return original_lsp_var(buf, ...)
+          end
+        end
+      end, 100)
+    end,
+  },
       vim.defer_fn(function()
         local ok, colorify = pcall(require, "nvchad.colorify")
         if ok then
