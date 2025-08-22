@@ -45,6 +45,31 @@ return {
   },
   
   {
+    "nvim-telescope/telescope.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    opts = {
+      defaults = {
+        vimgrep_arguments = {
+          "rg",
+          "--color=never",
+          "--no-heading",
+          "--with-filename",
+          "--line-number",
+          "--column",
+          "--smart-case",
+          "--hidden",        -- 搜索隐藏文件
+          "--no-ignore",     -- 不遵循 .gitignore
+        },
+      },
+    pickers = {
+      find_files = {
+        find_command = { "rg", "--files", "--hidden", "--no-ignore" },
+      },
+    },
+  },
+},
+
+  {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
     opts = {
