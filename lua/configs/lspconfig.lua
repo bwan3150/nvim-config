@@ -1,39 +1,83 @@
-local capabilities = require('cmp_nvim_lsp').default_capabilities()
+vim.api.nvim_create_autocmd("LspAttach", {
+  callback = function(args)
+    vim.g.nvchad_colorify = false
+  end,
+  once = true,
+})
 
--- 添加更多服务器
-local servers = { 
-  "html", 
-  "cssls",
-  "ts_ls"
+local lspconfig = require("lspconfig")
+local nvlsp = require("nvchad.configs.lspconfig")
+
+-- TypeScript/JavaScript
+lspconfig.ts_ls.setup {
+  on_attach = nvlsp.on_attach,
+  on_init = nvlsp.on_init,
+  capabilities = nvlsp.capabilities,
 }
 
-local lspconfig = require "lspconfig"
-
--- 为基本服务器设置配置
-for _, lsp in ipairs(servers) do
-  if lsp == "ts_ls" then
-    lspconfig[lsp].setup {
-      capabilities = capabilities,  -- 添加这行
-      settings = {
-        -- 你的设置...
-      }
-    }
-  else
-    lspconfig[lsp].setup {
-      capabilities = capabilities   -- 添加这行
-    }
+-- Python (支持 conda 环境)
+local function get_python_path()
+  -- 优先使用 conda 环境
+  local conda_prefix = os.getenv("CONDA_PREFIX")
+  if conda_prefix then
+    return conda_prefix .. "/bin/python"
   end
+  -- 其次使用虚拟环境
+  local venv = os.getenv("VIRTUAL_ENV")
+  if venv then
+    return venv .. "/bin/python"
+  end
+  -- 最后回退到系统 Python
+  return vim.fn.exepath("python3") or vim.fn.exepath("python") or "python"
 end
 
--- Python 特殊配置
 lspconfig.pyright.setup {
-  capabilities = capabilities,      -- 添加这行
+  on_attach = nvlsp.on_attach,
+  on_init = nvlsp.on_init,
+  capabilities = nvlsp.capabilities,
   settings = {
     python = {
-      analysis = {
-        autoSearchPaths = true,
-        diagnosticMode = "workspace",
-        useLibraryCodeForTypes = true,
+      pythonPath = get_python_path(),
+    },
+  },
+}
+
+-- Rust
+lspconfig.rust_analyzer.setup {
+  on_attach = nvlsp.on_attach,
+  on_init = nvlsp.on_init,
+  capabilities = nvlsp.capabilities,
+  settings = {
+    ["rust-analyzer"] = {
+      cargo = {
+        loadOutDirsFromCheck = true,
+      },
+      procMacro = {
+        enable = true,
+      },
+    },
+  },
+}
+
+-- Lua (为 Neovim 配置优化)
+lspconfig.lua_ls.setup {
+  on_attach = nvlsp.on_attach,
+  on_init = nvlsp.on_init,
+  capabilities = nvlsp.capabilities,
+  settings = {
+    Lua = {
+      runtime = {
+        version = "LuaJIT",
+      },
+      diagnostics = {
+        globals = { "vim" },
+      },
+      workspace = {
+        library = vim.api.nvim_get_runtime_file("", true),
+        checkThirdParty = false,
+      },
+      telemetry = {
+        enable = false,
       },
     },
   },

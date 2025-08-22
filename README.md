@@ -19,7 +19,13 @@
 git clone https://github.com/bwan3150/nvim-config.git ~/.config/nvim
 ```
 
-2. 启动 Neovim：
+2. 安装LSP解释器依赖(基础提供lua, rust, python, type/javascript)
+```bash
+chmod +x lsp_requirements.sh
+./lsp_requirements.sh
+```
+
+3. 启动 Neovim：
 ```bash
 nvim
 ```
@@ -42,7 +48,8 @@ Lazy.nvim 会自动安装所有插件。
 │   │   └── lazy.lua        # 插件管理器配置
 │   └── plugins/
 │       └── init.lua        # 插件列表和配置
-└── lazy-lock.json          # 插件版本锁定文件
+│── lazy-lock.json          # 插件版本锁定文件
+└── lsp_requirements.sh     # LSP依赖解释器安装脚本(for Macos and GNU/Linux) 
 ```
 
 ## 更新
@@ -51,6 +58,14 @@ Lazy.nvim 会自动安装所有插件。
 ```
 :Lazy sync
 ```
+
+## NvChad Fix
+
+当前版本NvChad的Colorify与LSP同时运行会出现Bug, 使用:
+```bash
+nvim +35 ~/.local/share/nvim/lazy/ui/lua/nvchad/colorify/methods.lua
+```
+打开文件后, 将`client:request`改为`client.request`, 之后报错就解决了
 
 ## Credits
 
