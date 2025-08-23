@@ -75,7 +75,8 @@ return {
     opts = {
       ensure_installed = {
         "lua", "vim", "vimdoc", "html", "css",
-        "javascript", "typescript", "python", "c", "cpp", "json", "bash"
+        "javascript", "typescript", "python", "c", "cpp", "json", "bash",
+        "markdown", "markdown_inline"  -- 添加 markdown 支持 LSP hover 文档
       },
       highlight = { enable = true },
       indent = { enable = true },
