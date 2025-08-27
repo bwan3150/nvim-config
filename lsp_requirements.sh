@@ -30,12 +30,17 @@ npm install -g typescript typescript-language-server pyright
 
 # 3. 安装 Rust Analyzer
 echo "Installing rust-analyzer..."
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    brew install rust-analyzer
+if command -v rustup &> /dev/null; then
+    rustup component add rust-analyzer
 else
-    mkdir -p ~/.local/bin
-    curl -L https://github.com/rust-lang/rust-analyzer/releases/latest/download/rust-analyzer-x86_64-unknown-linux-gnu.gz | gunzip -c - > ~/.local/bin/rust-analyzer
-    chmod +x ~/.local/bin/rust-analyzer
+    echo -e "${RED}Warning: rustup not found, falling back to manual installation${NC}"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        brew install rust-analyzer
+    else
+        mkdir -p ~/.local/bin
+        curl -L https://github.com/rust-lang/rust-analyzer/releases/latest/download/rust-analyzer-x86_64-unknown-linux-gnu.gz | gunzip -c - > ~/.local/bin/rust-analyzer
+        chmod +x ~/.local/bin/rust-analyzer
+    fi
 fi
 
 # 4. 安装 Lua Language Server
