@@ -47,7 +47,17 @@ fi
 echo "Installing gopls..."
 if command -v go &> /dev/null; then
     go install golang.org/x/tools/gopls@latest
-    echo -e "${GREEN}✓${NC} gopls installed via go install"
+    # 检查 gopls 是否在 PATH 中，如果不在，创建软链接
+    if ! command -v gopls &> /dev/null; then
+        if [ -f "$HOME/go/bin/gopls" ]; then
+            echo -e "${YELLOW}gopls installed but not in PATH, creating symlink...${NC}"
+            mkdir -p ~/.local/bin
+            ln -sf "$HOME/go/bin/gopls" ~/.local/bin/gopls
+            echo -e "${GREEN}✓${NC} gopls symlink created in ~/.local/bin"
+        fi
+    else
+        echo -e "${GREEN}✓${NC} gopls installed and available in PATH"
+    fi
 else
     echo -e "${YELLOW}Warning: Go not found. Installing gopls via npm...${NC}"
     npm install -g gopls
@@ -85,7 +95,8 @@ echo -e "\n${GREEN}Checking installations:${NC}"
 command -v tsserver &> /dev/null && echo -e "${GREEN}✓${NC} TypeScript" || echo -e "${RED}✗${NC} TypeScript"
 command -v pyright &> /dev/null && echo -e "${GREEN}✓${NC} Python" || echo -e "${RED}✗${NC} Python"  
 command -v rust-analyzer &> /dev/null && echo -e "${GREEN}✓${NC} Rust" || echo -e "${RED}✗${NC} Rust"
-command -v gopls &> /dev/null && echo -e "${GREEN}✓${NC} Go" || echo -e "${RED}✗${NC} Go"
+# 检查 gopls - 也检查 ~/.local/bin 和 ~/go/bin
+(command -v gopls &> /dev/null || [ -f "$HOME/.local/bin/gopls" ] || [ -f "$HOME/go/bin/gopls" ]) && echo -e "${GREEN}✓${NC} Go" || echo -e "${RED}✗${NC} Go"
 command -v lua-language-server &> /dev/null && echo -e "${GREEN}✓${NC} Lua" || echo -e "${RED}✗${NC} Lua"
 echo -e "${YELLOW}!${NC} Godot LSP 需要在 Godot 编辑器中手动启用"
 
