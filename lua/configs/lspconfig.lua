@@ -82,3 +82,32 @@ lspconfig.lua_ls.setup {
     },
   },
 }
+
+-- Go
+lspconfig.gopls.setup {
+  on_attach = nvlsp.on_attach,
+  on_init = nvlsp.on_init,
+  capabilities = nvlsp.capabilities,
+  settings = {
+    gopls = {
+      analyses = {
+        unusedparams = true,
+      },
+      staticcheck = true,
+      gofumpt = true,
+      usePlaceholders = true,
+      completeUnimported = true,
+    },
+  },
+}
+
+-- Godot (GDScript)
+lspconfig.gdscript.setup {
+  on_attach = nvlsp.on_attach,
+  on_init = nvlsp.on_init,
+  capabilities = nvlsp.capabilities,
+  -- Godot LSP 默认端口为 6005
+  -- 需要在 Godot 编辑器中启用 LSP 服务器
+  -- 项目设置 -> 网络 -> 语言服务器 -> 启用
+  cmd = { "nc", "localhost", "6005" },
+}

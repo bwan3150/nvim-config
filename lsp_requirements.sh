@@ -43,7 +43,27 @@ else
     fi
 fi
 
-# 4. 安装 Lua Language Server
+# 4. 安装 Go Language Server (gopls)
+echo "Installing gopls..."
+if command -v go &> /dev/null; then
+    go install golang.org/x/tools/gopls@latest
+    echo -e "${GREEN}✓${NC} gopls installed via go install"
+else
+    echo -e "${YELLOW}Warning: Go not found. Installing gopls via npm...${NC}"
+    npm install -g gopls
+fi
+
+# 5. 安装 Godot LSP (通过 Godot 编辑器内置)
+echo "Configuring Godot LSP..."
+echo -e "${YELLOW}Note: Godot LSP 服务器内置在 Godot 编辑器中${NC}"
+echo -e "${YELLOW}请在 Godot 编辑器中启用 LSP:${NC}"
+echo -e "  1. 打开 Godot 编辑器"
+echo -e "  2. 进入 编辑器设置 -> 网络 -> 语言服务器"
+echo -e "  3. 启用 '使用外部编辑器时启用语言服务器'"
+echo -e "  4. 端口默认为 6005 (可在设置中修改)"
+echo -e "${GREEN}✓${NC} Godot LSP 配置说明已显示"
+
+# 6. 安装 Lua Language Server
 echo "Installing lua-language-server..."
 if [[ "$OSTYPE" == "darwin"* ]]; then
     brew install lua-language-server
@@ -65,7 +85,10 @@ echo -e "\n${GREEN}Checking installations:${NC}"
 command -v tsserver &> /dev/null && echo -e "${GREEN}✓${NC} TypeScript" || echo -e "${RED}✗${NC} TypeScript"
 command -v pyright &> /dev/null && echo -e "${GREEN}✓${NC} Python" || echo -e "${RED}✗${NC} Python"  
 command -v rust-analyzer &> /dev/null && echo -e "${GREEN}✓${NC} Rust" || echo -e "${RED}✗${NC} Rust"
+command -v gopls &> /dev/null && echo -e "${GREEN}✓${NC} Go" || echo -e "${RED}✗${NC} Go"
 command -v lua-language-server &> /dev/null && echo -e "${GREEN}✓${NC} Lua" || echo -e "${RED}✗${NC} Lua"
+echo -e "${YELLOW}!${NC} Godot LSP 需要在 Godot 编辑器中手动启用"
 
 echo -e "\n${GREEN}Done!${NC}"
-echo "Make sure ~/.local/bin is in your PATH"
+echo "Make sure ~/.local/bin and ~/go/bin are in your PATH"
+echo "For Go: export PATH=$PATH:~/go/bin"
