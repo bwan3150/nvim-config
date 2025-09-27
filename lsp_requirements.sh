@@ -54,26 +54,37 @@ current_position=0
 while true; do
     show_menu
 
-    # 读取按键 - 处理特殊键序列
+    # 读取单个字符
     IFS= read -rsn1 key
 
-    # 检查是否是转义序列（方向键）
-    if [[ $key == $'\x1b' ]]; then
-        read -rsn2 key # 读取剩余的 [A 或 [B
+    # 处理转义序列（方向键等特殊键）
+    if [[ $key == $'\e' ]]; then
+        # 尝试读取更多字符（非阻塞）
+        read -rsn2 -t 0.001 rest || true
+        key="${key}${rest}"
+
+        # 处理方向键
         case "$key" in
-            '[A')  # 上箭头
-                ((current_position--))
+            $'\e[A'|$'\e0A'|$'\eOA')  # 上箭头的不同编码
+                ((current_position--)) || true
                 if [ "$current_position" -lt 0 ]; then
                     current_position=$((${#lsp_options[@]} - 1))
                 fi
                 ;;
-            '[B')  # 下箭头
-                ((current_position++))
+            $'\e[B'|$'\e0B'|$'\eOB')  # 下箭头的不同编码
+                ((current_position++)) || true
                 if [ "$current_position" -ge "${#lsp_options[@]}" ]; then
                     current_position=0
                 fi
                 ;;
+            *)
+                # 忽略其他转义序列
+                continue
+                ;;
         esac
+    elif [[ -z "$key" ]]; then
+        # Enter 键
+        break
     else
         case "$key" in
             ' ')  # 空格键
@@ -83,12 +94,13 @@ while true; do
                     selected[$current_position]="true"
                 fi
                 ;;
-            '')  # Enter 键
-                break
-                ;;
             q|Q)  # 退出
                 echo -e "\n${YELLOW}安装已取消${NC}"
                 exit 0
+                ;;
+            *)
+                # 忽略其他按键
+                continue
                 ;;
         esac
     fi
@@ -158,24 +170,27 @@ install_rust() {
 
 install_go() {
     echo -e "${BLUE}安装 Go LSP (gopls)...${NC}"
-    if command -v go &> /dev/null; then
-        go install golang.org/x/tools/gopls@latest
-        # 检查 gopls 是否在 PATH 中
-        if ! command -v gopls &> /dev/null; then
-            if [ -f "$HOME/go/bin/gopls" ]; then
-                echo -e "${YELLOW}gopls 已安装但不在 PATH 中，创建软链接...${NC}"
-                mkdir -p ~/.local/bin
-                ln -sf "$HOME/go/bin/gopls" ~/.local/bin/gopls
-                echo -e "${GREEN}✓ gopls 软链接已创建${NC}"
-            fi
+    if ! command -v go &> /dev/null; then
+        echo -e "${RED}错误: Go 未安装!${NC}"
+        echo -e "${YELLOW}请先安装 Go 语言环境:${NC}"
+        if [[ "$OSTYPE" == "darwin"* ]]; then
+            echo "  brew install go"
+        else
+            echo "  sudo apt install golang-go  # Debian/Ubuntu"
+            echo "  或访问 https://golang.org/dl/ 下载安装"
         fi
-    else
-        echo -e "${YELLOW}警告: Go 未找到，通过 npm 安装 gopls...${NC}"
-        if ! command -v node &> /dev/null; then
-            echo -e "${RED}错误: Node.js 也未安装!${NC}"
-            return 1
+        return 1
+    fi
+
+    go install golang.org/x/tools/gopls@latest
+    # 检查 gopls 是否在 PATH 中
+    if ! command -v gopls &> /dev/null; then
+        if [ -f "$HOME/go/bin/gopls" ]; then
+            echo -e "${YELLOW}gopls 已安装但不在 PATH 中，创建软链接...${NC}"
+            mkdir -p ~/.local/bin
+            ln -sf "$HOME/go/bin/gopls" ~/.local/bin/gopls
+            echo -e "${GREEN}✓ gopls 软链接已创建${NC}"
         fi
-        npm install -g gopls
     fi
     echo -e "${GREEN}✓ Go LSP 安装完成${NC}\n"
 }
