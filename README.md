@@ -12,6 +12,8 @@
 - ripgrep (用于 telescope 搜索)
 - Node.js (用于某些 LSP 服务器)
 
+
+
 ### 步骤
 
 1. 克隆：
@@ -25,12 +27,34 @@ chmod +x lsp_requirements.sh
 ./lsp_requirements.sh
 ```
 
-3. 启动 Neovim：
+3. 安装其他系统依赖:
+
+如要在 nvim 中显示图片, 安装以下依赖(示例基于debian)：
+
+```bash
+# 基础
+sudo apt update
+sudo apt install -y libreadline-dev liblua5.1-0-dev pkg-config libmagickwand-dev luarocks
+
+# 通过luarocks安装依赖
+luarocks install magick
+```
+
+**注意：**
+- image.nvim 插件需要支持图片显示的终端，如 Ghostty, Kitty
+
+4. 启动 Neovim：
 ```bash
 nvim
 ```
 
-Lazy.nvim 会自动安装所有插件。
+Lazy.nvim 会自动安装所有插件  
+如果没有成功安装或需要重新安装, 通过以下指令手动同步:
+
+```bash
+:Lazy clean
+:Lazy sync
+```
 
 ## 结构
 
