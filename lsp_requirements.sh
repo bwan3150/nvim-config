@@ -127,14 +127,9 @@ echo -e "${BOLD}${GREEN}开始安装选中的 LSP 服务器...${NC}\n"
 install_typescript() {
     echo -e "${BLUE}安装 TypeScript/JavaScript LSP...${NC}"
     if ! command -v node &> /dev/null; then
-        echo -e "${RED}错误: Node.js 未安装!${NC}"
-        echo -e "${YELLOW}请先安装 Node.js:${NC}"
-        if [[ "$OSTYPE" == "darwin"* ]]; then
-            echo "  brew install node"
-        else
-            echo "  curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -"
-            echo "  sudo apt-get install -y nodejs"
-        fi
+        echo -e "${RED}错误: Node.js 未安装${NC}"
+        echo "  brew install node  # macOS"
+        echo "  sudo apt install nodejs  # Linux"
         return 1
     fi
     npm install -g typescript typescript-language-server
@@ -143,20 +138,36 @@ install_typescript() {
 
 install_python() {
     echo -e "${BLUE}安装 Python LSP (Pyright)...${NC}"
-    if ! command -v node &> /dev/null; then
-        echo -e "${RED}错误: Node.js 未安装! Pyright 需要 Node.js${NC}"
+    if ! command -v python3 &> /dev/null && ! command -v python &> /dev/null; then
+        echo -e "${RED}错误: Python 未安装${NC}"
+        echo "  brew install python3  # macOS"
+        echo "  sudo apt install python3  # Linux"
         return 1
     fi
-    npm install -g pyright
+    if ! command -v node &> /dev/null; then
+        echo -e "${RED}错误: Node.js 未安装 (Pyright 依赖)${NC}"
+        return 1
+    fi
+    if command -v pyright &> /dev/null; then
+        echo -e "${YELLOW}Pyright 已安装，更新中...${NC}"
+        npm update -g pyright
+    else
+        npm install -g pyright
+    fi
     echo -e "${GREEN}✓ Python LSP 安装完成${NC}\n"
 }
 
 install_rust() {
     echo -e "${BLUE}安装 Rust Analyzer...${NC}"
+    if ! command -v rustc &> /dev/null; then
+        echo -e "${RED}错误: Rust 未安装${NC}"
+        echo "  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh"
+        return 1
+    fi
     if command -v rustup &> /dev/null; then
         rustup component add rust-analyzer
     else
-        echo -e "${YELLOW}警告: rustup 未找到，尝试其他安装方式${NC}"
+        echo -e "${YELLOW}rustup 未找到，尝试下载二进制${NC}"
         if [[ "$OSTYPE" == "darwin"* ]]; then
             brew install rust-analyzer
         else
@@ -171,25 +182,17 @@ install_rust() {
 install_go() {
     echo -e "${BLUE}安装 Go LSP (gopls)...${NC}"
     if ! command -v go &> /dev/null; then
-        echo -e "${RED}错误: Go 未安装!${NC}"
-        echo -e "${YELLOW}请先安装 Go 语言环境:${NC}"
-        if [[ "$OSTYPE" == "darwin"* ]]; then
-            echo "  brew install go"
-        else
-            echo "  sudo apt install golang-go  # Debian/Ubuntu"
-            echo "  或访问 https://golang.org/dl/ 下载安装"
-        fi
+        echo -e "${RED}错误: Go 未安装${NC}"
+        echo "  brew install go  # macOS"
+        echo "  sudo apt install golang-go  # Linux"
         return 1
     fi
-
     go install golang.org/x/tools/gopls@latest
     # 检查 gopls 是否在 PATH 中
     if ! command -v gopls &> /dev/null; then
         if [ -f "$HOME/go/bin/gopls" ]; then
-            echo -e "${YELLOW}gopls 已安装但不在 PATH 中，创建软链接...${NC}"
             mkdir -p ~/.local/bin
             ln -sf "$HOME/go/bin/gopls" ~/.local/bin/gopls
-            echo -e "${GREEN}✓ gopls 软链接已创建${NC}"
         fi
     fi
     echo -e "${GREEN}✓ Go LSP 安装完成${NC}\n"
@@ -197,10 +200,10 @@ install_go() {
 
 install_lua() {
     echo -e "${BLUE}安装 Lua Language Server...${NC}"
+    # Lua LSP 不依赖 Lua 运行时，直接安装二进制
     if [[ "$OSTYPE" == "darwin"* ]]; then
         brew install lua-language-server
     else
-        # Linux 安装
         LUA_LS_VERSION="3.7.4"
         PLATFORM="linux-x64"
         mkdir -p ~/.local/bin
@@ -217,13 +220,15 @@ install_lua() {
 
 install_godot() {
     echo -e "${BLUE}配置 Godot LSP...${NC}"
-    echo -e "${YELLOW}注意: Godot LSP 服务器内置在 Godot 编辑器中${NC}"
-    echo -e "${YELLOW}请在 Godot 编辑器中启用 LSP:${NC}"
-    echo -e "  1. 打开 Godot 编辑器"
-    echo -e "  2. 进入 编辑器设置 -> 网络 -> 语言服务器"
-    echo -e "  3. 启用 '使用外部编辑器时启用语言服务器'"
-    echo -e "  4. 端口默认为 6005 (可在设置中修改)"
-    echo -e "${GREEN}✓ Godot LSP 配置说明已显示${NC}\n"
+    if ! command -v godot &> /dev/null && ! command -v godot4 &> /dev/null; then
+        echo -e "${RED}错误: Godot 未安装${NC}"
+        echo "  brew install --cask godot  # macOS"
+        echo "  flatpak install flathub org.godotengine.Godot  # Linux"
+        return 1
+    fi
+    echo -e "${YELLOW}Godot LSP 内置于编辑器${NC}"
+    echo "  编辑器设置 -> 网络 -> 语言服务器 -> 启用"
+    echo -e "${GREEN}✓ Godot LSP 配置完成${NC}\n"
 }
 
 # 执行安装
