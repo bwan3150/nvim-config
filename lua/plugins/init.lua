@@ -103,4 +103,76 @@ return {
       vim.cmd.colorscheme "catppuccin-macchiato"
     end,
   },
+
+  -- In-editor markdown rendering
+  {
+    "MeanderingProgrammer/render-markdown.nvim",
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    ft = { "markdown" },
+    config = function()
+      require("render-markdown").setup({
+        -- Configuration for rendering
+        code = {
+          enabled = true,
+          sign = false,
+          style = "full",
+          position = "left",
+          language_pad = 0,
+          disable_background = { "diff" },
+        },
+        heading = {
+          enabled = true,
+          sign = true,
+          position = "overlay",
+          icons = { "󰲡 ", "󰲣 ", "󰲥 ", "󰲧 ", "󰲩 ", "󰲫 " },
+          signs = { "󰫎 " },
+          width = "full",
+          left_pad = 0,
+          right_pad = 0,
+          min_width = 0,
+          border = false,
+          border_prefix = false,
+          above = "▄",
+          below = "▀",
+        },
+        bullet = {
+          enabled = true,
+          icons = { "●", "○", "◆", "◇" },
+          left_pad = 0,
+          right_pad = 0,
+        },
+        checkbox = {
+          enabled = true,
+          unchecked = {
+            icon = "󰄱 ",
+            highlight = "RenderMarkdownUnchecked",
+          },
+          checked = {
+            icon = "󰱒 ",
+            highlight = "RenderMarkdownChecked",
+          },
+          custom = {
+            todo = { raw = "[-]", rendered = "󰥔 ", highlight = "RenderMarkdownTodo" },
+          },
+        },
+        quote = {
+          enabled = true,
+          icon = "▋",
+          repeat_linebreak = false,
+        },
+        table = {
+          enabled = true,
+          style = "full",
+          cell = "padded",
+          min_width = 0,
+          border = {
+            "┌", "┬", "┐",
+            "├", "┼", "┤",
+            "└", "┴", "┘",
+            "│", "─",
+          },
+        },
+      })
+    end,
+  },
 }
