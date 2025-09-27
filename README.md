@@ -13,7 +13,7 @@
 - Node.js (用于某些 LSP 服务器)
 - 输入法工具(用于退出insert模式时切换回英文输入法以使用nvim命令):
   - Linux: fcitx5 (`sudo apt install fcitx5`)
-  - macOS: macism (`brew install macism`)
+  - macOS: macism (`brew tap laishulu/homebrew && brew install macism`)
 
 
 
