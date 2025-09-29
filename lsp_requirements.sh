@@ -211,10 +211,18 @@ install_lua() {
         wget "https://github.com/LuaLS/lua-language-server/releases/download/${LUA_LS_VERSION}/lua-language-server-${LUA_LS_VERSION}-${PLATFORM}.tar.gz"
         mkdir -p ~/.local/share/lua-language-server
         tar -xzf "lua-language-server-${LUA_LS_VERSION}-${PLATFORM}.tar.gz" -C ~/.local/share/lua-language-server
-        ln -sf ~/.local/share/lua-language-server/bin/lua-language-server ~/.local/bin/lua-language-server
+
+        mkdir -p ~/.local/bin
+        chmod +x ~/.local/share/lua-language-server/bin/lua-language-server
+        ln -sf "$HOME/.local/share/lua-language-server/bin/lua-language-server" "$HOME/.local/bin/lua-language-server"
+
         rm "lua-language-server-${LUA_LS_VERSION}-${PLATFORM}.tar.gz"
         cd - > /dev/null
     fi
+
+    # 确保 PATH 包含 ~/.local/bin
+    export PATH="$HOME/.local/bin:$PATH"
+
     echo -e "${GREEN}✓ Lua Language Server 安装完成${NC}\n"
 }
 
@@ -272,7 +280,7 @@ if [ "${selected[3]}" == "true" ]; then
     (command -v gopls &> /dev/null || [ -f "$HOME/.local/bin/gopls" ] || [ -f "$HOME/go/bin/gopls" ]) && echo -e "${GREEN}✓${NC} Go" || echo -e "${RED}✗${NC} Go"
 fi
 if [ "${selected[4]}" == "true" ]; then
-    command -v lua-language-server &> /dev/null && echo -e "${GREEN}✓${NC} Lua" || echo -e "${RED}✗${NC} Lua"
+    (command -v lua-language-server &> /dev/null || [ -x "$HOME/.local/bin/lua-language-server" ]) && echo -e "${GREEN}✓${NC} Lua" || echo -e "${RED}✗${NC} Lua"
 fi
 if [ "${selected[5]}" == "true" ]; then
     echo -e "${YELLOW}!${NC} Godot LSP 需要在 Godot 编辑器中手动启用"

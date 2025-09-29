@@ -64,6 +64,7 @@ lspconfig.lua_ls.setup {
   on_attach = nvlsp.on_attach,
   on_init = nvlsp.on_init,
   capabilities = nvlsp.capabilities,
+  cmd = { vim.fn.expand("~/.local/bin/lua-language-server") },
   settings = {
     Lua = {
       runtime = {
